@@ -2301,7 +2301,7 @@ function outboxWrite(list) { try { localStorage.setItem(SUPA_OUTBOX, JSON.string
 async function supaUpsert(table, row, conflict) {
 const c = supaCfg();
 if (!c.on) return { ok: false, off: true };
-const r = await supaReq(table, { method: 'POST', query: 'on_conflict=' + encodeURIComponent(conflict || 'id'), prefer: 'resolution=merge-duplicates,return=minimal', body: row });
+const r = await supaReq('rpc/niente_upsert', { method: 'POST', prefer: 'return=minimal', body: { p_table: table, p_row: row } });
 if (!r.ok) {
 const l = outboxRead(); l.push({ table, row, conflict: conflict || 'id', at: new Date().toISOString() }); outboxWrite(l);
 }
@@ -2382,12 +2382,9 @@ if (!supaCfg().on) return;
 const uid = await currentUserId();
 if (!uid) return;
 const taken = (S.pills || []).indexOf(ds) >= 0;
-supaReq('pill_logs', {
-method: taken ? 'POST' : 'DELETE',
-query: taken ? undefined : 'user_id=eq.' + encodeURIComponent(uid) + '&taken_on=eq.' + encodeURIComponent(ds),
-prefer: 'resolution=merge-duplicates,return=minimal',
-body: taken ? { id: uid + ':' + ds, user_id: uid, taken_on: ds, method: (S.settings.contra || {}).method || 'pill' } : undefined
-});
+if (taken) {
+supaUpsert('pill_logs', { id: uid + ':' + ds, user_id: uid, taken_on: ds, method: (S.settings.contra || {}).method || 'pill' }, 'id');
+}
 }
 async function dbPushClinicVisit(v) {
 if (!supaCfg().on) return;
@@ -2426,7 +2423,7 @@ const list = outboxRead();
 if (!list.length) return;
 const rest = [];
 for (const item of list) {
-const r = await supaReq(item.table, { method: 'POST', query: 'on_conflict=' + encodeURIComponent(item.conflict), prefer: 'resolution=merge-duplicates,return=minimal', body: item.row });
+const r = await supaReq('rpc/niente_upsert', { method: 'POST', prefer: 'return=minimal', body: { p_table: item.table, p_row: item.row } });
 if (!r.ok) rest.push(item);
 }
 outboxWrite(rest);
