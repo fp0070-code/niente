@@ -1,0 +1,60 @@
+{
+  "name": "니엔뜨 — 여성 건강 다이어리",
+  "short_name": "니엔뜨",
+  "description": "생리·피임·완경 모드, 산부인과 방문·예약 관리, 니엔뜨 사용 루틴, Y존 건강 체크와 개선도 기록을 한 곳에서 관리하는 여성 건강 다이어리.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#E8DEDE",
+  "theme_color": "#5C3268",
+  "categories": [
+    "health",
+    "lifestyle",
+    "medical"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "오늘 기록",
+      "short_name": "오늘",
+      "url": "./index.html?tab=home"
+    },
+    {
+      "name": "니엔뜨 케어",
+      "short_name": "케어",
+      "url": "./index.html?tab=care"
+    },
+    {
+      "name": "Y존 건강 체크",
+      "short_name": "Y존 체크",
+      "url": "./index.html?tab=care&go=survey"
+    }
+  ]
+}
