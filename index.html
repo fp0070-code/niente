@@ -795,6 +795,26 @@ function render() {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + TAB));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === TAB));
 }
+/* 탭 이동도 히스토리에 남겨 뒤로가기로 홈에 돌아오게 합니다 */
+function setTab(view) {
+  if (!view) return;
+  TAB = view;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (navMuted > 0 || !navSupported()) return;
+  const top = navLayers[navDepth];
+  if (view === 'home') {
+    if (top && top.kind === 'tab') return void navGoTo(navDepth - 1);
+    return;
+  }
+  if (top && top.kind === 'tab') {
+    const v = view;
+    top.restore = function () { TAB = v; closeSheetNow(); render(); return true; };
+    return;
+  }
+  const v = view;
+  navPush('tab', function () { TAB = v; closeSheetNow(); render(); return true; });
+}
 function renderAppbar() {
   const el = document.getElementById('appbarDate');
   if (!el) return;
@@ -1388,7 +1408,11 @@ function openDay(ds) {
     smell: rec.smell != null ? Number(rec.smell) : null
   };
   drawDaySheet();
-  openSheet();
+  openSheet(function () {
+    if (!form) return false;
+    sheetDate = ds;
+    drawDaySheet();
+  }, 'day');
 }
 function drawDaySheet() {
   const ds = sheetDate;
@@ -1531,26 +1555,164 @@ function drawDaySheet() {
   const memo = document.getElementById('dMemo');
   if (memo) memo.addEventListener('input', e => { form.memo = e.target.value; });
 }
-function openSheet() {
+/* ============================================================
+   뒤로가기 처리 (안드로이드 뒤로가기 · 브라우저 back · 전단계)
+   - 화면(탭·시트·설문 단계)을 열 때마다 history 항목을 하나씩 쌓고,
+     뒤로가기가 오면(popstate) 그 항목이 가리키는 화면으로 되돌립니다.
+   - 그래서 건강체크·개선도 체크 중에 뒤로가기를 눌러도 앱을 나가지 않고
+     전 단계 · 이전 화면에 머뭅니다.
+   ============================================================ */
+let BOOT_TAB = 'home';   // 앱을 처음 열었을 때의 탭 (뒤로가기의 맨 아래 화면)
+let navDepth = 0;        // 지금 보고 있는 history 항목의 깊이
+const navLayers = [null];// 깊이별 화면 복원 정보 ({ kind, restore })
+let navMuted = 0;        // 복원 중에는 history를 새로 쌓지 않습니다
+let navGoTimer = null;
+let sheetLayerDepth = 0; // 현재 열린 시트의 깊이
+function navSupported() {
+  return typeof history !== 'undefined' && typeof history.pushState === 'function' && typeof history.go === 'function';
+}
+function navApply(depth) {
+  navMuted++;
+  try {
+    const layer = (depth > 0 && navLayers[depth]) ? navLayers[depth] : navLayers[0];
+    let keep = true;
+    if (layer && typeof layer.restore === 'function') keep = layer.restore();
+    if (keep === false) closeSheetNow();
+  } catch (e) {
+    try { closeSheetNow(); } catch (e2) {}
+  } finally {
+    navMuted--;
+  }
+}
+function navPushLayer(layer) {
+  if (!navSupported() || navMuted > 0) return 0;
+  navLayers.length = navDepth + 1;   // 뒤로 간 뒤 새로 열면 앞으로 가기 기록은 지웁니다
+  const depth = navDepth + 1;
+  navLayers[depth] = layer;
+  try {
+    history.pushState({ nienteNav: depth }, '');
+  } catch (e) {
+    navLayers.length = depth;
+    return 0;
+  }
+  navDepth = depth;
+  return depth;
+}
+function navPush(kind, restore) {
+  return navPushLayer({ kind: kind, restore: restore });
+}
+/* 히스토리 항목을 한 번에 여러 칸 되돌립니다 */
+function navGoTo(target) {
+  if (!navSupported()) return false;
+  target = Math.max(0, Math.min(target, navDepth));
+  const delta = target - navDepth;
+  if (!delta) return false;
+  const from = navDepth;
+  try { history.go(delta); } catch (e) { return false; }
+  if (navGoTimer) clearTimeout(navGoTimer);
+  navGoTimer = setTimeout(function () {
+    navGoTimer = null;
+    if (navDepth === from) {   // 히스토리가 움직이지 않으면 화면만이라도 정리합니다
+      navDepth = target;
+      navApply(target);
+    }
+  }, 400);
+  return true;
+}
+/* 현재 화면을 시트 바닥 화면으로 되돌립니다 (시트 안의 하위 화면 → 목록) */
+function navBackToSheetBase() {
+  if (navMuted > 0 || !navSupported()) return false;
+  if (sheetLayerDepth > 0 && navDepth > sheetLayerDepth) return navGoTo(sheetLayerDepth);
+  return false;
+}
+window.addEventListener('popstate', function (e) {
+  if (navGoTimer) { clearTimeout(navGoTimer); navGoTimer = null; }
+  const st = e.state;
+  let depth = (st && typeof st.nienteNav === 'number') ? st.nienteNav : 0;
+  if (depth > navLayers.length - 1) depth = navLayers.length - 1;
+  if (depth === navDepth) return;
+  navDepth = depth;
+  navApply(depth);
+});
+function isSheetOpen() {
   const sh = document.getElementById('sheet');
+  return !!(sh && sh.classList.contains('open'));
+}
+function openSheetNow() {
+  const sh = document.getElementById('sheet');
+  if (!sh) return;
   sh.scrollTop = 0;
   document.getElementById('mask').classList.add('open');
   sh.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-function closeSheet() {
-  document.getElementById('mask').classList.remove('open');
+/* draw: 이 시트를 다시 그리는 함수, key: 같은 시트를 다시 그릴 때 쓰는 이름 */
+function openSheet(draw, key) {
+  openSheetNow();
+  if (navMuted > 0 || !navSupported()) return;
+  const top = navLayers[navDepth];
+  if (key && top && top.kind === 'sheet' && top.key === key) {
+    if (typeof draw === 'function') top.draw = draw;
+    return;
+  }
+  const layer = { kind: 'sheet', key: key || '', draw: (typeof draw === 'function' ? draw : null) };
+  layer.restore = function () {
+    if (typeof layer.draw !== 'function') return false;
+    if (layer.draw() === false) return false;
+    sheetLayerDepth = navDepth;
+    openSheetNow();
+    return true;
+  };
+  const d = navPushLayer(layer);
+  if (d) sheetLayerDepth = d;
+}
+function closeSheetNow() {
+  const mask = document.getElementById('mask');
   const sh = document.getElementById('sheet');
-  sh.classList.remove('open');
-  sh.classList.remove('full');
+  if (mask) mask.classList.remove('open');
+  if (sh) {
+    sh.classList.remove('open');
+    sh.classList.remove('full');
+  }
   document.body.style.overflow = '';
   sheetDate = null;
+  sheetLayerDepth = 0;
+  confirmCb = null;
+}
+/* 앱 안의 닫기(✕)·취소 버튼도 뒤로가기와 같은 길로 움직입니다 */
+function closeSheet() {
+  if (!isSheetOpen()) { closeSheetNow(); return; }
+  if (navMuted > 0 || !navSupported()) { closeSheetNow(); return; }
+  const base = (sheetLayerDepth > 0 && sheetLayerDepth <= navDepth) ? sheetLayerDepth : navDepth;
+  const target = base - 1;
+  if (target >= 0 && target < navDepth && navGoTo(target)) return;
+  closeSheetNow();
+}
+/* 맨 아래 화면(앱 첫 화면) */
+navLayers[0] = {
+  kind: 'base',
+  restore: function () {
+    TAB = BOOT_TAB;
+    closeSheetNow();
+    render();
+    window.scrollTo(0, 0);
+    return true;
+  }
+};
+if (navSupported()) {
+  try { history.replaceState({ nienteNav: 0 }, ''); } catch (e) {}
 }
 /* ---------- 건강 글 시트 ---------- */
 function openArticle(id) {
   const a = allArticles().find(x => x.id === id);
   if (!a) return;
   if (!S.read.includes(id)) { S.read.push(id); save(true); }
+  drawArticle(id);
+  openSheet(function () { drawArticle(id); }, 'article:' + id);
+}
+function drawArticle(id) {
+  const a = allArticles().find(x => x.id === id);
+  if (!a) return false;
   const bm = S.bookmarks.includes(id);
   const cat = catOf(a.cat);
   document.getElementById('sheetBody').innerHTML = `
@@ -1573,7 +1735,7 @@ function openArticle(id) {
     </div>
   `;
   document.getElementById('sheet').dataset.article = id;
-  openSheet();
+  return true;
 }
 /* ---------- 확인 모달 ---------- */
 let confirmCb = null;
@@ -1587,13 +1749,13 @@ function askConfirm(opts) {
       <button class="btn line" data-act="sheet:close">취소</button>
       <button class="btn ${danger ? 'danger' : 'primary'}" data-act="confirm:ok">${esc(ok)}</button>
     </div>`;
-  openSheet();
+  openSheet(function () { return false; }, 'confirm');
 }
 /* ---------- 기록 조작 ---------- */
 function startPeriod(ds) {
-  if (!ds || ds > todayStr()) { toast('미래 날짜는 기록할 수 없어요'); return; }
+  if (!ds || ds > todayStr()) { toast('미래 날짜는 기록할 수 없어요'); return false; }
   const exists = S.periods.some(p => p.start === ds);
-  if (exists) { toast('이미 생리 시작일로 기록되어 있어요'); return; }
+  if (exists) { toast('이미 생리 시작일로 기록되어 있어요'); return false; }
   const prev = S.periods.filter(p => p.start < ds).sort((a, b) => (a.start < b.start ? 1 : -1))[0];
   if (prev && !prev.end && diff(prev.start, ds) <= 12) {
     askConfirm({
@@ -1602,12 +1764,13 @@ function startPeriod(ds) {
       ok: '마감 후 시작',
       onOk: () => { prev.end = ymd(addDays(parse(ds), -1)); S.periods.push({ start: ds, end: null }); save(); render(); closeSheet(); toast('생리를 기록했어요'); }
     });
-    return;
+    return true;   // 확인 창을 띄웠으니 날짜 시트를 다시 그리지 않습니다
   }
   S.periods.push({ start: ds, end: null });
   S.periods.sort((a, b) => (a.start < b.start ? -1 : 1));
   save(); render();
   toast(fmtKo(ds) + ' 생리 시작을 기록했어요');
+  return false;
 }
 function endPeriod(ds) {
   const op = openPeriod();
@@ -1775,18 +1938,14 @@ document.addEventListener('click', e => {
   const act = el.dataset.act;
   const d = el.dataset.d;
   switch (act) {
-    case 'nav':
-      TAB = el.dataset.view;
-      render();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      break;
+    case 'nav': setTab(el.dataset.view); break;
     case 'cal:prev': CAL = new Date(CAL.getFullYear(), CAL.getMonth() - 1, 1); renderCalendar(); break;
     case 'cal:next': CAL = new Date(CAL.getFullYear(), CAL.getMonth() + 1, 1); renderCalendar(); break;
     case 'cal:today': CAL = new Date(new Date().getFullYear(), new Date().getMonth(), 1); renderCalendar(); break;
     case 'day:open': openDay(d); break;
     case 'sheet:close': closeSheet(); break;
     case 'confirm:ok': if (confirmCb) { const cb = confirmCb; confirmCb = null; cb(); } break;
-    case 'period:start': startPeriod(d); if (sheetDate === d) { drawDaySheet(); } break;
+    case 'period:start': { const asked = startPeriod(d); if (!asked && sheetDate === d) { drawDaySheet(); } break; }
     case 'period:end': endPeriod(d); closeSheet(); break;
     case 'period:delete': deletePeriod(d); break;
     case 'clean:done': cleanToggle(d || todayStr(), true); break;
@@ -1914,6 +2073,7 @@ function boot() {
     const q = new URLSearchParams(location.search).get('tab');
     if (q && ['home', 'cal', 'care', 'info', 'stats'].includes(q)) TAB = q;
   } catch (e) {}
+  BOOT_TAB = TAB;   // 뒤로가기의 맨 아래 화면
   const intro = document.getElementById('intro');
   if (S.settings.seenIntro && intro) intro.remove();
   render();
@@ -1976,7 +2136,8 @@ mode: S.mode || 'period',
 terms: !!S.consents.terms,
 privacy: !!S.consents.privacy,
 marketing: !!S.consents.marketing,
-openDoc: ''
+openDoc: '',
+depths: {}
 };
 let el = document.getElementById('onb');
 if (!el) {
@@ -1988,6 +2149,22 @@ document.body.appendChild(el);
 }
 el.classList.remove('gone');
 drawOnboarding();
+onbLayer(ONB.step);
+}
+function onbLayer(step) {
+if (typeof navPush !== 'function') return;
+const d = navPush('onb-step', function () {
+if (!ONB) return false;
+const o = document.getElementById('onb');
+if (o) { o.style.display = ''; o.classList.remove('gone'); }
+ONB.step = step;
+drawOnboarding();
+return true;
+});
+if (d && ONB) {
+if (!ONB.depths) ONB.depths = {};
+ONB.depths[step] = d;
+}
 }
 const ONB_STEPS = [
 { t: '니엔뜨를 시작해요', d: '3색 팔레트의 새로운 니엔뜨와 함께 Y존 케어를 기록해 보세요.' },
@@ -2141,8 +2318,17 @@ if (ONB.step === 2 && !(ONB.terms && ONB.privacy)) { toast('필수 동의를 확
 if (ONB.step >= 3) { onbFinish(); return; }
 ONB.step += 1;
 drawOnboarding();
+onbLayer(ONB.step);
 }
-function onbPrev() { if (!ONB) return; ONB.step = Math.max(0, ONB.step - 1); drawOnboarding(); }
+function onbPrev() {
+if (!ONB || ONB.step === 0) return;
+const n = Math.max(0, ONB.step - 1);
+const d = (ONB.depths && ONB.depths[n]) || 0;
+if (d && typeof navGoTo === 'function' && d < navDepth && navGoTo(d)) return;
+ONB.step = n;
+drawOnboarding();
+onbLayer(n);
+}
 function onbFinish() {
 onbCapture();
 if (!(ONB.terms && ONB.privacy)) { ONB.step = 2; drawOnboarding(); toast('필수 동의를 확인해 주세요'); return; }
@@ -2167,6 +2353,8 @@ invalidate();
 render();
 const el = document.getElementById('onb');
 if (el) { el.classList.add('gone'); setTimeout(() => { el.style.display = 'none'; }, 320); }
+ONB = null;
+if (typeof navGoTo === 'function' && navDepth > 0) navGoTo(0);
 const introEl = document.getElementById('intro');
 if (introEl) introEl.remove();
 syncProfile();
@@ -2206,9 +2394,7 @@ document.getElementById('sheetBody').innerHTML = `
     </button>
     <div class="note gray" style="margin-top:14px">모드를 바꿔도 기존 기록은 지워지지 않아요. 완경 모드에서는 생리·배란 예정일을 표시하지 않고, 피임 모드에서 ‘월경 없음’을 고르면 같은 방식으로 표시하지 않아요.</div>
   `;
-document.getElementById('sheet').classList.add('open');
-document.getElementById('mask').classList.add('open');
-document.body.style.overflow = 'hidden';
+openSheet(openModeSheet, 'mode');
 }
 function openProfileSheet() {
 const m = S.member;
@@ -2250,9 +2436,7 @@ document.getElementById('sheetBody').innerHTML = `
       <button class="btn primary" data-act="pf:save">저장</button>
     </div>
   `;
-document.getElementById('sheet').classList.add('open');
-document.getElementById('mask').classList.add('open');
-document.body.style.overflow = 'hidden';
+openSheet(openProfileSheet, 'profile');
 }
 function saveProfileSheet() {
 const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
@@ -2862,7 +3046,7 @@ const rec = S.cleansings.find(c => c.date === date);
 const base = rec && rec.improve ? rec.improve : {};
 IMPR = { date, itch: Number(base.itch) || 0, scent: Number(base.scent) || 0, dry: Number(base.dry) || 0, fresh: Number(base.fresh) || 0, disch: Number(base.disch) || 0, elas: Number(base.elas) || 0, note: base.note || '' };
 drawImprove();
-openSheet();
+openSheet(function () { if (!IMPR) return false; drawImprove(); }, 'improve');
 }
 function drawImprove() {
 const r = routineInfo();
@@ -2941,7 +3125,7 @@ document.getElementById('sheetBody').innerHTML = `
       <button class="btn primary" data-act="rt:save">저장</button>
     </div>
   `;
-openSheet();
+openSheet(openRoutineSetup, 'routine');
 }
 function saveRoutineSetup() {
 const el = document.getElementById('rtFirst');
@@ -2969,7 +3153,7 @@ document.getElementById('sheetBody').innerHTML = `
       <button class="btn primary" data-act="ck:save">저장</button>
     </div>
   `;
-openSheet();
+openSheet(openCheckup, 'checkup');
 }
 function saveCheckup() {
 const el = document.getElementById('ckDate');
@@ -3391,11 +3575,32 @@ color: [], smell: [], viscosity: [],
 symptoms: [], freq: '', duration: '', action: [], cleanserType: [], hospital: '', conditions: [],
 antibiotics: '', uterine: [], hormone: '', child: []
 };
-SURV = { step: 0, answers: A, saved: null };
+SURV = { step: 0, answers: A, saved: null, depths: {} };
 drawSurvey();
-const sh = document.getElementById('sheet');
-sh.classList.add('full');
-openSheet();
+document.getElementById('sheet').classList.add('full');
+openSheet(svSheetDraw(0), 'survey');
+SURV.depths[0] = navDepth;
+}
+function svSheetDraw(step) {
+return function () {
+if (!SURV) return false;
+SURV.step = step;
+document.getElementById('sheet').classList.add('full');
+drawSurvey();
+return true;
+};
+}
+function svPushStep(step) {
+if (typeof navPush !== 'function') return;
+const d = navPush('sv-step', function () {
+if (!SURV) return false;
+SURV.step = step;
+document.getElementById('sheet').classList.add('full');
+drawSurvey();
+openSheetNow();
+return true;
+});
+if (d && SURV && SURV.depths) SURV.depths[step] = d;
 }
 function svCapture() {
 if (!SURV) return;
@@ -3649,10 +3854,11 @@ closeSheet();
 function showSurveyResult() {
 const last = S.surveys[S.surveys.length - 1];
 if (!last) { toast('설문 기록이 없어요'); return; }
-SURV = { step: SV_STEPS.length - 1, answers: last.answers, saved: last };
+SURV = { step: SV_STEPS.length - 1, answers: last.answers, saved: last, depths: {} };
 document.getElementById('sheet').classList.add('full');
 drawSurvey();
-openSheet();
+openSheet(svSheetDraw(SV_STEPS.length - 1), 'survey');
+SURV.depths[SV_STEPS.length - 1] = navDepth;
 }
 document.addEventListener('click', e => {
 const el = e.target.closest('[data-act]');
@@ -3693,10 +3899,21 @@ if (!(SURV.answers.symptoms || []).length) { toast('경험한 증상을 선택�
 }
 SURV.step = Math.min(SV_STEPS.length - 1, SURV.step + 1);
 drawSurvey();
+svPushStep(SURV.step);
 break;
-case 'sv:prev': svCapture(); SURV.step = Math.max(0, SURV.step - 1); drawSurvey(); break;
+case 'sv:prev': {
+svCapture();
+if (!SURV || SURV.step === 0) break;
+const prevStep = Math.max(0, SURV.step - 1);
+const pd = (SURV.depths && SURV.depths[prevStep]) || 0;
+if (pd && pd < navDepth && typeof navGoTo === 'function' && navGoTo(pd)) break;
+SURV.step = prevStep;
+drawSurvey();
+svPushStep(prevStep);
+break;
+}
 case 'sv:save': svSave(); break;
-case 'sv:close': closeSheet(); document.getElementById('sheet').classList.remove('full'); SURV = null; break;
+case 'sv:close': SURV = null; closeSheet(); break;
 case 'survey:result': showSurveyResult(); break;
 }
 });
@@ -3877,7 +4094,23 @@ function openClinic() {
 CLINIC = { view: 'list', id: null, draft: null };
 document.getElementById('sheet').classList.add('full');
 drawClinic();
-openSheet();
+openSheet(clinicSheetDraw, 'clinic');
+}
+function clinicSheetDraw() {
+if (!CLINIC) return false;
+document.getElementById('sheet').classList.add('full');
+drawClinic();
+return true;
+}
+function clinicPushView() {
+if (typeof navPush !== 'function') return;
+navPush('clinic-view', function () {
+if (!CLINIC) return false;
+document.getElementById('sheet').classList.add('full');
+drawClinic();
+openSheetNow();
+return true;
+});
 }
 function drawClinic() {
 if (!CLINIC) return;
@@ -4128,6 +4361,7 @@ at: new Date().toISOString()
 save(); invalidate(); render();
 CLINIC.view = 'list'; CLINIC.id = null; CLINIC.draft = null;
 drawClinic();
+if (typeof navBackToSheetBase === 'function') navBackToSheetBase();
 toast('산부인과 방문 기록을 저장했어요');
 if (typeof dbPushClinicVisit === 'function') dbPushClinicVisit(rec);
 const na = (S.clinicAppts || []).find(a => a.fromVisit === rec.id);
@@ -4158,6 +4392,7 @@ S.clinicAppts[i] = rec;
 save(); invalidate(); render();
 CLINIC.view = 'list'; CLINIC.id = null; CLINIC.draft = null;
 drawClinic();
+if (typeof navBackToSheetBase === 'function') navBackToSheetBase();
 toast('예약을 저장했어요. 전날과 당일에 알려드릴게요');
 if (typeof dbPushClinicAppt === 'function') dbPushClinicAppt(rec);
 }
@@ -4233,6 +4468,7 @@ break;
 case 'clinic:add':
 CLINIC = { view: 'visit', id: null, draft: { date: todayStr(), type: '정기검진', hospital: '', diagnoses: [], diagnosisText: '', treatment: '', memo: '', planNext: false, nextDate: '', nextTime: '10:00', nextPurpose: '정기검진' } };
 drawClinic();
+clinicPushView();
 break;
 case 'clinic:edit': {
 const vv = (S.clinicVisits || []).find(x => x.id === id);
@@ -4249,6 +4485,7 @@ nextPurpose: na ? na.purpose : (vv.type || '정기검진')
 }
 };
 drawClinic();
+clinicPushView();
 break;
 }
 case 'clinic:type':
@@ -4279,16 +4516,20 @@ saveClinicVisit(); break;
 case 'clinic:back':
 clinicCapture();
 CLINIC.view = 'list'; CLINIC.id = null; CLINIC.draft = null;
-drawClinic(); break;
+drawClinic();
+if (typeof navBackToSheetBase === 'function' && navBackToSheetBase()) break;
+break;
 case 'clinic:appt-add':
 CLINIC = { view: 'appt', id: null, draft: { date: '', time: '10:00', purpose: '정기검진', hospital: '', note: '' } };
 drawClinic();
+clinicPushView();
 break;
 case 'clinic:appt-open': {
 const a = (S.clinicAppts || []).find(x => x.id === id);
 if (!a) return;
 CLINIC = { view: 'appt', id: a.id, draft: { date: a.date, time: a.time || '10:00', purpose: a.purpose || '정기검진', hospital: a.hospital || '', note: a.note || '' } };
 drawClinic();
+clinicPushView();
 break;
 }
 case 'clinic:appt-save': saveClinicAppt(); break;
@@ -4638,9 +4879,7 @@ document.getElementById('sheetBody').innerHTML = `
       <button class="btn primary" data-act="contra:save">저장</button>
     </div>
   `;
-document.getElementById('sheet').classList.add('open');
-document.getElementById('mask').classList.add('open');
-document.body.style.overflow = 'hidden';
+openSheet(openContraSetup, 'contra');
 }
 function saveContraSetup() {
 const c = contraCfg();
@@ -4855,7 +5094,13 @@ function openAdmin() {
 ADMIN = { pinOk: false, buf: '', tab: 'overview', filter: 'all', q: '', err: '' };
 document.getElementById('sheet').classList.add('full');
 drawAdmin();
-openSheet();
+openSheet(adminSheetDraw, 'admin');
+}
+function adminSheetDraw() {
+if (!ADMIN) return false;
+document.getElementById('sheet').classList.add('full');
+drawAdmin();
+return true;
 }
 function adminPinOk() { return ADMIN.pinOk; }
 function drawAdmin() {
@@ -5190,7 +5435,7 @@ document.addEventListener('click', e => {
   if (!el) return;
   const act = el.dataset.act, v = el.dataset.v, id = el.dataset.id;
   switch (act) {
-    case 'admin:close': closeSheet(); document.getElementById('sheet').classList.remove('full'); ADMIN.pinOk = false; break;
+    case 'admin:close': if (ADMIN) ADMIN.pinOk = false; closeSheet(); break;
     case 'admin:key': {
       if (v === 'ok') {
         if (ADMIN.buf === String(S.settings.adminPin)) { ADMIN.pinOk = true; ADMIN.buf = ''; ADMIN.err = ''; drawAdmin(); }
