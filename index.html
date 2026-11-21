@@ -2030,7 +2030,7 @@ if (st === 1) {
 body.innerHTML = `
       <div class="field" style="margin-top:0">
         <div class="label">이름 <span class="tiny muted">필수</span></div>
-        <input class="input" id="onbName" placeholder="예: 박지후" value="${esc(ONB.name)}" autocomplete="name">
+        <input class="input" id="onbName" placeholder="예: 니엔뜨" value="${esc(ONB.name)}" autocomplete="name">
       </div>
       <div class="field">
         <div class="label">닉네임 <span class="tiny muted">선택</span></div>
@@ -2038,7 +2038,7 @@ body.innerHTML = `
       </div>
       <div class="field">
         <div class="label">생년월일 <span class="tiny muted">8자리 숫자만 입력하면 – 가 자동으로 붙어요</span></div>
-        <input class="input" id="onbBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19710108 → 1971-01-08" value="${esc(ONB.birthDate || '')}">
+        <input class="input" id="onbBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19950515 → 1995-05-15" value="${esc(ONB.birthDate || '')}">
       </div>
       <div class="field">
         <div class="label">연락처 <span class="tiny muted">선택 · 알림·안내용</span></div>
@@ -2125,7 +2125,7 @@ if (!ONB) return;
 if (ONB.step === 1) {
 onbCapture();
 if (!ONB.name) { toast('이름을 입력해 주세요'); return; }
-if (ONB.birthDate && !validBirth(ONB.birthDate)) { toast('생년월일 8자리를 확인해 주세요 (예: 19710108)'); return; }
+if (ONB.birthDate && !validBirth(ONB.birthDate)) { toast('생년월일 8자리를 확인해 주세요 (예: 19950515)'); return; }
 }
 if (ONB.step === 2 && !(ONB.terms && ONB.privacy)) { toast('필수 동의를 확인해 주세요'); return; }
 if (ONB.step >= 3) { onbFinish(); return; }
@@ -2211,7 +2211,7 @@ document.getElementById('sheetBody').innerHTML = `
       <div class="field"><div class="label">닉네임</div>
         <input class="input" id="pfNick" value="${esc(m.nickname)}"></div>
       <div class="field"><div class="label">생년월일 <span class="tiny muted">8자리 숫자 입력 시 – 자동</span></div>
-        <input class="input" id="pfBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19710108" value="${esc(m.birthDate || (m.birthYear ? String(m.birthYear) + '-01-01' : ''))}"></div>
+        <input class="input" id="pfBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19950515" value="${esc(m.birthDate || (m.birthYear ? String(m.birthYear) + '-01-01' : ''))}"></div>
       <div class="field"><div class="label">연락처</div>
         <div style="display:grid;grid-template-columns:104px 1fr;gap:7px">
           <select class="input" id="pfCType">
@@ -2249,7 +2249,7 @@ const g = id => { const el = document.getElementById(id); return el ? el.value :
 S.member.name = g('pfName').trim() || S.member.name;
 S.member.nickname = g('pfNick').trim();
 const bd = g('pfBirth').trim();
-if (bd && !validBirth(bd)) { toast('생년월일 8자리를 확인해 주세요 (예: 19710108)'); return; }
+if (bd && !validBirth(bd)) { toast('생년월일 8자리를 확인해 주세요 (예: 19950515)'); return; }
 S.member.birthDate = bd;
 if (bd) S.member.birthYear = Number(bd.slice(0, 4));
 S.member.contactType = g('pfCType') || S.member.contactType;
@@ -3436,7 +3436,7 @@ if (s === 0) {
 body = `<div class="field" style="margin-top:8px"><div class="label">성명</div>
         <input class="input" id="svName" value="${esc(V.name)}" placeholder="이름"></div>
       <div class="field"><div class="label">생년월일 <span class="tiny muted">8자리 숫자만 입력하면 – 가 자동으로 붙어요</span></div>
-        <input class="input" id="svBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19710108 → 1971-01-08" value="${esc(V.birth || '')}"></div>
+        <input class="input" id="svBirth" data-birth="1" inputmode="numeric" maxlength="10" placeholder="예: 19950515 → 1995-05-15" value="${esc(V.birth || '')}"></div>
       <div class="field"><div class="label">회사명 <span class="tiny muted">선택</span></div>
         <input class="input" id="svCompany" value="${esc(V.company)}" placeholder="예: 니엔뜨"></div>
       <div class="field"><div class="label">설문 일자</div>
@@ -3675,7 +3675,7 @@ case 'sv:next':
 svCapture();
 if (SURV.step === 0) {
 if (!SURV.answers.name) { toast('성명을 입력해 주세요'); break; }
-if (SURV.answers.birth && !validBirth(SURV.answers.birth)) { toast('생년월일 8자리를 확인해 주세요 (예: 19710108)'); break; }
+if (SURV.answers.birth && !validBirth(SURV.answers.birth)) { toast('생년월일 8자리를 확인해 주세요 (예: 19950515)'); break; }
 }
 if (SURV.step === 2) {
 const meno = String(SURV.answers.menstruation || '').indexOf('완경') >= 0;
