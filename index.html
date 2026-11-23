@@ -930,7 +930,7 @@ function homePeriod(today) {
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '15가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '16가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="clean:done" data-d="${today}">
         <span class="em">💧</span><b>니엔뜨 케어 체크</b>
@@ -1018,7 +1018,7 @@ function homeMenopause(today) {
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '15가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '16가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="improve:open" data-d="${today}">
         <span class="em">💧</span><b>개선도 체크</b>
@@ -2925,7 +2925,7 @@ box.innerHTML = `
         <div class="row-ic pist">🌿</div>
         <div class="row-main">
           <div class="row-t">${S.surveys.length ? '최근 설문 ' + fmtKoY(String(S.surveys[S.surveys.length - 1].at).slice(0, 10)) : '나의 Y존 케어 서비스 설문지'}</div>
-          <div class="row-s">15가지 질환 자가 유추 · 약 1분 · 무료</div>
+          <div class="row-s">16가지 질환 자가 유추 · 약 1분 · 무료</div>
         </div>
         <button class="btn sm pist" data-act="survey:start">${S.surveys.length ? '다시 하기' : '시작'}</button>
       </div>
@@ -4091,6 +4091,17 @@ tips: [
 ],
 doc: '원인균(트리코모나스) 검사로 확인하고 처방약으로 치료해요. 파트너가 함께 치료하지 않으면 재감염될 수 있어 동반 진료를 권해요.'
 },
+atro: {
+name: '질위축증(위축성 질염)', em: '🌾', urg: 'soon',
+line: '완경 전후 호르몬 변화로 질 점막이 얇아져 건조·쓰라림이 심해지고, 작은 자극에도 소량 출혈이 생길 수 있어요. 반복되는 요로감염도 흔해요.',
+tips: [
+'질 보습제를 주 2~3회 사용하고, 자극 없는 세정제로 외음부만 씻어요.',
+'관계 시 수용성 윤활제를 충분히 사용해 점막 자극을 줄여요.',
+'작은 자극에도 출혈이 있으면 진료 때 꼭 알려 주세요.',
+'물을 충분히 마시고 반복되는 요로감염을 함께 살펴요.'
+],
+doc: '위축성 질염은 완경 전후 에스트로겐 감소로 점막이 얇아져 생겨요. 산부인과에서 국소 호르몬 치료·보습 관리를 상담하면 증상이 크게 좋아질 수 있어요. 출혈이 반복되면 다른 원인 검사도 필요해요.'
+},
 other: {
 name: '기타 부인과 질환', em: '🩺', urg: 'fast',
 line: '부정출혈·완경 후 출혈·덩어리·체중 감소처럼 원인 확인이 필요한 신호가 보여요. 자가 판단보다 검사가 필요해요.',
@@ -4128,7 +4139,7 @@ q.push({
 id: 'subject', t: '누구의 증상인가요?', d: '대상과 나이에 따라 질문과 결과가 달라져요.', type: 'one',
 opts: [
 scO('본인 · 20~40대', {}, '20~40대 여성'),
-scO('본인 · 50대 이상·완경 전후', { dry: 2 }, '완경 전후'),
+scO('본인 · 45세 이상·완경 전후', { dry: 2, atro: 1 }, '완경 전후'),
 scO('본인 · 청소년', {}, '청소년'),
 scO('자녀 · 소아(만 12세 이하)', { ped: 6 }, '소아(만 12세 이하)')
 ]
@@ -4153,7 +4164,7 @@ scO('가려움·따가움', { cand: 3, ped: 2, bv: 1, dry: 1 }),
 scO('분비물이 늘었어요', { leuk: 3, bv: 2, cand: 1, pid: 1 }),
 scO('냄새가 신경 쓰여요', { bv: 3, pid: 1, ped: 1 }),
 scO('분비물 색·질감이 이상해요', { cand: 2, bv: 2, pid: 1, other: 1 }),
-scO('건조하고 따가워요', { dry: 4, lax: 1 }),
+scO('건조하고 따가워요', { dry: 4, atro: 1, lax: 1 }),
 scO('관계할 때 아파요', { dry: 2, pid: 2, lax: 1 }),
 scO('소변 볼 때 화끈거려요', { cyst: 4 }),
 scO('소변이 자주·급하게 마려워요', { cyst: 3, inc: 1 }),
@@ -4206,8 +4217,8 @@ scO('없어요', { bv: 1, lax: 1 }),
 scO('심하게 가렵고 붓고 빨개요', { cand: 5, ped: 2, tri: 1 }),
 scO('물집이 잡히고 찢어지는 듯 아파요', { herp: 5 }),
 scO('가려움이 가끔 있어요', { cand: 2, dry: 1 }),
-scO('따갑고 화끈거려요', { dry: 3, cand: 2 }),
-scO('건조해서 따가워요', { dry: 4 })
+scO('따갑고 화끈거려요', { dry: 3, atro: 1, cand: 2 }),
+scO('건조해서 따가워요', { dry: 4, atro: 1 })
 ]
 });
 q.push({
@@ -4218,7 +4229,8 @@ scO('볼 때 화끈거리고 아파요', { cyst: 4, ped: 1 }),
 scO('자주·급하게 마렵고 잔뇨감이 있어요', { cyst: 4 }),
 scO('기침·웃음·운동할 때 소변이 새요', { inc: 5 }),
 scO('화끈거림과 잦은 배뇨가 둘 다 있어요', { cyst: 5 }),
-scO('소변이 뿌옇고 냄새가 나요', { cyst: 3 })
+scO('소변이 뿌옇고 냄새가 나요', { cyst: 3 }),
+scO('소변 불편(요로감염)이 자주 반복돼요', { atro: 3, cyst: 2 })
 ]
 });
 q.push({
@@ -4244,7 +4256,7 @@ opts: [
 scO('25~35일로 규칙적이에요', {}),
 scO('가끔 불규칙해요', { pcos: 1 }),
 scO('35일 이상 자주 늦거나 생리를 건너뛰어요', { pcos: 5 }),
-scO('폐경이 지나 생리가 없어요', { dry: 1 }),
+scO('폐경이 지나 생리가 없어요', { dry: 1, atro: 2 }),
 scO('잘 모르겠어요', {})
 ]
 });
@@ -4278,7 +4290,7 @@ id: 'history', t: '이력·상황', d: '해당하는 것을 모두 골라 주세
 opts: [
 scO('출산한 적 있어요', { lax: 2 }),
 scO('여러 번 출산했거나 큰 아기를 낳았어요', { lax: 3 }),
-scO('완경 전후예요', { dry: 3 }),
+scO('완경 전후예요', { dry: 3, atro: 2 }),
 scO('자궁·골반 수술을 받았어요', { other: 1, lax: 1 }),
 scO('최근 항생제를 먹었어요', { cand: 3 }),
 scO('1년에 3번 이상 질염이 반복돼요', { cand: 2, bv: 2 }),
@@ -4301,7 +4313,7 @@ scO('소변에 피가 섞여요', { cyst: 2, ped: 1 }),
 scO('체중 감소·배에서 덩어리가 만져져요', { other: 4 })
 ] : [
 scO('해당 없어요', {}),
-scO('생리 사이·관계 후 부정출혈', { other: 4, pid: 1 }),
+scO('생리 사이·관계 후 부정출혈', { other: 4, atro: 6, pid: 1 }),
 scO('완경 후 출혈', { other: 6 }),
 scO('38도 이상 발열', { pid: 4 }),
 scO('심한 통증으로 일상생활이 어려워요', { pid: 3, other: 2 }),
@@ -4329,7 +4341,7 @@ return out;
 }
 function scAnalyze(V) {
 const qs = scQuestions(V);
-const sc = { bv: 0, cand: 0, dry: 0, lax: 0, cyst: 0, inc: 0, leuk: 0, ped: 0, pid: 0, pcos: 0, endo: 0, adeno: 0, herp: 0, tri: 0, other: 0 };
+const sc = { bv: 0, cand: 0, dry: 0, lax: 0, cyst: 0, inc: 0, leuk: 0, ped: 0, pid: 0, pcos: 0, endo: 0, adeno: 0, herp: 0, tri: 0, atro: 0, other: 0 };
 const ev = {};
 const labels = [];
 const child = V.subject === 'child';
@@ -4353,9 +4365,22 @@ if (o.ev && o.ev !== v) labels.push(o.ev);
 Object.keys(o.w || {}).forEach(c => add(c, o.w[c], o.ev || v));
 });
 });
+const menopausal = V.subject === '본인 · 45세 이상·완경 전후' ||
+V.cycle === '폐경이 지나 생리가 없어요' ||
+(Array.isArray(V.history) && V.history.indexOf('완경 전후예요') >= 0);
 const warns = V.warning || [];
 let fastFlag = false;
 if (child) { sc.pid = 0; sc.lax = 0; sc.dry = 0; sc.pcos = 0; sc.endo = 0; sc.adeno = 0; }
+if (child || !menopausal) sc.atro = 0;
+else {
+const symTxt = (V.symptoms || []).join(' ') + ' ' + String(V.itch || '');
+const drySignal = /건조|따갑|화끈|쓰라/.test(symTxt) || V.discharge === '없거나 평소와 같아요';
+if (drySignal) add('atro', 3, '완경 전후');
+const spotting = has(warns, '생리 사이·관계 후 부정출혈') || has(warns, '완경 후 출혈');
+const uti = String(V.urine || '').indexOf('반복') >= 0;
+const burning = /따갑|화끈|쓰라/.test(String(V.itch || ''));
+if (drySignal && sc.dry >= 4 && (spotting || uti || burning)) add('atro', 8, '완경 후 점막 쓰라림·출혈');
+}
 if (has(warns, '완경 후 출혈')) { add('other', 5, '완경 후 출혈'); fastFlag = true; }
 if (has(warns, '체중 감소·아랫배 덩어리') || has(warns, '체중 감소·배에서 덩어리가 만져져요')) { add('other', 5, '덩어리·체중 감소'); fastFlag = true; }
 if (has(warns, '38도 이상 발열')) {
@@ -4412,7 +4437,7 @@ el.id = 'scLanding';
 el.className = 'sc-landing';
 document.body.appendChild(el);
 }
-const conds = ['bv', 'cand', 'dry', 'lax', 'cyst', 'inc', 'leuk', 'ped', 'pid', 'pcos', 'endo', 'adeno', 'herp', 'tri', 'other'];
+const conds = ['bv', 'cand', 'dry', 'lax', 'cyst', 'inc', 'leuk', 'ped', 'pid', 'pcos', 'endo', 'adeno', 'herp', 'tri', 'atro', 'other'];
 el.innerHTML = `
     <div class="sc-wrap">
       <div class="sc-top">
@@ -4423,10 +4448,10 @@ el.innerHTML = `
         <div class="sc-hero-em">🌿</div>
         <div class="sc-kicker">1분이면 충분해요</div>
         <h1>Y존 자가 건강체크</h1>
-        <p>몇 가지 증상만 골라 주세요.<br>15가지 여성 질환 중 <b>가능성이 높은 질환</b>과<br>지금 해볼 수 있는 관리를 알려드려요.</p>
+        <p>몇 가지 증상만 골라 주세요.<br>16가지 여성 질환 중 <b>가능성이 높은 질환</b>과<br>지금 해볼 수 있는 관리를 알려드려요.</p>
       </div>
       <div class="sc-stats">
-        <div><b>15</b><span>질환 구분</span></div>
+        <div><b>16</b><span>질환 구분</span></div>
         <div><b>10</b><span>질문</span></div>
         <div><b>1분</b><span>소요 시간</span></div>
       </div>
@@ -4703,7 +4728,7 @@ const rec = {
 id: 'sc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
 at: at,
 kind: 'selfcheck',
-version: '1.2',
+version: '1.3',
 answers: A,
 result: { primary: R.primary, second: R.second, scores: R.scores, conf: R.conf, urgency: R.urgency, subject: A.subject, evidence: R.evidence },
 concerns: [c.name].concat(R.second ? [SC_COND[R.second].name] : []).concat((A.symptoms || []).filter(x => x !== '특별한 증상이 없어요').slice(0, 2)),
@@ -4757,7 +4782,7 @@ feedback: rec.feedback, concerns: rec.concerns, mode: S.mode
 }
 function scShare() {
 const url = location.origin + location.pathname;
-const text = '1분 무료 Y존 자가 건강체크 — 15가지 여성 질환을 증상으로 확인해 보세요.';
+const text = '1분 무료 Y존 자가 건강체크 — 16가지 여성 질환을 증상으로 확인해 보세요.';
 if (navigator.share) {
 navigator.share({ title: '니엔뜨 1분 Y존 자가 건강체크', text: text, url: url }).catch(() => {});
 return;
@@ -4777,7 +4802,7 @@ const nm = last ? SC_COND[last.result.primary].name : '';
 const sec = last && last.result.second ? SC_COND[last.result.second].name : '';
 const sub = last
 ? '최근 결과 · ' + nm + (sec ? ' / ' + sec : '') + ' 가능성 · ' + fmtShort(String(last.at).slice(0, 10)) + ' · 다시 하기'
-: '15가지 질환을 증상으로 유추해 드려요 · 무료';
+: '16가지 질환을 증상으로 유추해 드려요 · 무료';
 return `<button class="sc-home" data-act="selfcheck:start">
     <span class="sc-home-em">🌿</span>
     <span class="sc-home-tx"><b>1분 무료 Y존 자가 건강체크</b><span>${esc(sub)}</span></span>
@@ -5611,7 +5636,7 @@ const quick = `
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '15가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '16가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="improve:open" data-d="${today}">
         <span class="em">💧</span><b>개선도 체크</b>
