@@ -2489,6 +2489,9 @@ function outboxWrite(list) { try { localStorage.setItem(SUPA_OUTBOX, JSON.string
 async function supaUpsert(table, row, conflict) {
 const c = supaCfg();
 if (!c.on) return { ok: false, off: true };
+if (table !== 'profiles' && table !== 'consents' && !(S.consents && S.consents.privacy)) {
+return { ok: false, off: true };
+}
 const r = await supaReq('rpc/niente_upsert', { method: 'POST', prefer: 'return=minimal', body: { p_table: table, p_row: row } });
 if (!r.ok) {
 const l = outboxRead(); l.push({ table, row, conflict: conflict || 'id', at: new Date().toISOString() }); outboxWrite(l);
