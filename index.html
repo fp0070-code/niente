@@ -4136,6 +4136,17 @@ watch: { label: '경과 관찰', cls: 'watch', note: '증상이 심해지거나 
 none: { label: '이상 신호 없음', cls: 'none', note: '3개월마다 다시 체크하면 변화를 일찍 알 수 있어요.' }
 };
 const scO = (v, w, ev) => ({ v: v, w: w || {}, ev: ev || v });
+const SC_CYCLE_MENO = '폐경이 지나 생리가 없어요';
+const SC_PERIOD_MENO = '완경이라 해당 없음(생리 없음)';
+function scSyncCycle(prevCycle) {
+if (!SC || !SC.answers) return;
+const A = SC.answers;
+if (A.cycle === SC_CYCLE_MENO) {
+if (prevCycle !== SC_CYCLE_MENO || !A.period) A.period = SC_PERIOD_MENO;
+} else if (A.period === SC_PERIOD_MENO) {
+A.period = '';
+}
+}
 function scQuestions(V) {
 const child = String(V.subject || '').indexOf('소아') >= 0;
 const q = [];
@@ -4260,7 +4271,7 @@ opts: [
 scO('25~35일로 규칙적이에요', {}),
 scO('가끔 불규칙해요', { pcos: 1 }),
 scO('35일 이상 자주 늦거나 생리를 건너뛰어요', { pcos: 5 }),
-scO('폐경이 지나 생리가 없어요', { dry: 1, atro: 2 }),
+scO(SC_CYCLE_MENO, { dry: 1, atro: 2 }),
 scO('잘 모르겠어요', {})
 ]
 });
@@ -4272,7 +4283,8 @@ scO('진통제로 조절되는 편이에요', { endo: 1 }),
 scO('진통제가 잘 안 들을 만큼 점점 심해져요', { endo: 5 }),
 scO('생리량이 매우 많고 덩어리가 커요(어지럼·빈혈)', { adeno: 6 }),
 scO('생리통도 심하고 양도 많아요', { adeno: 3, endo: 3 }),
-scO('생리할 때 배변이나 관계 시 깊은 통증이 있어요', { endo: 4, pid: 1 })
+scO('생리할 때 배변이나 관계 시 깊은 통증이 있어요', { endo: 4, pid: 1 }),
+scO(SC_PERIOD_MENO, {})
 ]
 });
 }
@@ -4427,7 +4439,7 @@ let SC = null;
 function scBlank() {
 return {
 step: 0,
-answers: { subject: '', symptoms: [], discharge: '', smell: '', itch: '', urine: '', pelvis: '', history: [], childhx: [], warning: [] },
+answers: { subject: '', symptoms: [], discharge: '', smell: '', itch: '', urine: '', pelvis: '', cycle: '', period: '', history: [], childhx: [], warning: [] },
 consent: false, marketing: !!(S.consents && S.consents.marketing), showDoc: false,
 phone: '', name: '',
 saved: null, result: null, depths: {}
@@ -4569,12 +4581,14 @@ const V = SC.answers;
 const ans = V[q.id];
 const isOn = v => Array.isArray(ans) ? ans.includes(v) : ans === v;
 const many = (q.opts || []).length > 6 && (q.opts || []).every(x => x.v.length <= 9);
+const menoSynced = q.id === 'period' && V.cycle === SC_CYCLE_MENO && isOn(SC_PERIOD_MENO);
 return `<div class="q">
     <div class="q-label"><span class="n">${q.type === 'multi' ? '복수' : '택1'}</span><span>${q.t}</span></div>
     <div class="${many ? 'opt-grid' : 'opts'}">
       ${(q.opts || []).map(o => `<button class="opt ${isOn(o.v) ? 'on' : ''}" data-act="sc:${q.type === 'multi' ? 'multi' : 'one'}" data-k="${q.id}" data-v="${esc(o.v)}">${esc(o.v)}</button>`).join('')}
     </div>
     ${q.type === 'multi' ? `<div class="tiny muted" style="margin-top:8px;font-weight:700">여러 개를 고를 수 있어요${q.max ? ' (최대 ' + q.max + '개)' : ''}</div>` : ''}
+    ${menoSynced ? `<div class="tiny muted" style="margin-top:8px;font-weight:700">완경을 고르셔서 '완경이라 해당 없음'을 선택했어요. 지금도 생리통·생리량 변화가 있으면 해당 항목을 골라 주세요.</div>` : ''}
   </div>`;
 }
 function scFormHtml() {
@@ -4686,6 +4700,7 @@ const steps = scSteps(SC.answers);
 const st = steps[SC.step];
 if (!st) return;
 if (st.type === 'one' || st.type === 'multi' || st.type === 'group') {
+scSyncCycle(SC.answers.cycle);
 const subs = st.qs && st.qs.length ? st.qs : [st];
 for (let i = 0; i < subs.length; i++) {
 const q = subs[i];
@@ -4839,6 +4854,7 @@ case 'sc:one': {
 if (!SC) break;
 scCapture();
 const before = SC.answers.subject;
+const beforeCycle = SC.answers.cycle;
 SC.answers[k] = SC.answers[k] === v ? '' : v;
 if (k === 'subject' && before !== SC.answers[k]) {
 SC.answers.symptoms = [];
@@ -4847,10 +4863,13 @@ SC.answers.smell = '';
 SC.answers.itch = '';
 SC.answers.urine = '';
 SC.answers.pelvis = '';
+SC.answers.cycle = '';
+SC.answers.period = '';
 SC.answers.history = [];
 SC.answers.childhx = [];
 SC.answers.warning = [];
 }
+if (k === 'cycle') scSyncCycle(beforeCycle);
 drawSelfCheck();
 break;
 }
