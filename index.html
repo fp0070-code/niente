@@ -4133,7 +4133,7 @@ none: { label: '이상 신호 없음', cls: 'none', note: '3개월마다 다시 
 };
 const scO = (v, w, ev) => ({ v: v, w: w || {}, ev: ev || v });
 function scQuestions(V) {
-const child = V.subject === 'child';
+const child = String(V.subject || '').indexOf('소아') >= 0;
 const q = [];
 q.push({
 id: 'subject', t: '누구의 증상인가요?', d: '대상과 나이에 따라 질문과 결과가 달라져요.', type: 'one',
@@ -4344,7 +4344,7 @@ const qs = scQuestions(V);
 const sc = { bv: 0, cand: 0, dry: 0, lax: 0, cyst: 0, inc: 0, leuk: 0, ped: 0, pid: 0, pcos: 0, endo: 0, adeno: 0, herp: 0, tri: 0, atro: 0, other: 0 };
 const ev = {};
 const labels = [];
-const child = V.subject === 'child';
+const child = String(V.subject || '').indexOf('소아') >= 0;
 const has = (arr, v) => Array.isArray(arr) && arr.includes(v);
 const add = (c, n, lab) => {
 n = Number(n) || 0;
