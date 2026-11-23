@@ -2924,12 +2924,13 @@ box.innerHTML = `
       <div class="row" style="padding-top:0;border-bottom:0">
         <div class="row-ic pist">🌿</div>
         <div class="row-main">
-          <div class="row-t">${S.surveys.length ? '최근 설문 ' + fmtKoY(String(S.surveys[S.surveys.length - 1].at).slice(0, 10)) : '나의 Y존 케어 서비스 설문지'}</div>
+          <div class="row-t">${S.surveys.length ? '최근 자가 체크 ' + fmtKoY(String(S.surveys[S.surveys.length - 1].at).slice(0, 10)) : '1분 무료 Y존 자가 건강체크'}</div>
           <div class="row-s">16가지 질환 자가 유추 · 약 1분 · 무료</div>
         </div>
         <button class="btn sm pist" data-act="survey:start">${S.surveys.length ? '다시 하기' : '시작'}</button>
       </div>
-      <div class="note pist" style="margin-top:10px">설문을 마치면 생활습관·증상에 맞춘 <b>맞춤 Y존 케어 피드백</b>을 바로 보여드려요.</div>
+      <div class="note pist" style="margin-top:10px">16가지 질환을 증상으로 유추해 <b>예상 질환과 관리 팁</b>을 바로 보여드려요.</div>
+      <div class="tiny" style="margin-top:8px;text-align:right"><button class="more" data-act="survey:deep" style="color:var(--brand-2);font-weight:800">생활습관 정밀 설문(약 3분) ›</button></div>
     </div>
     <div class="section-title"><h2>알림 설정</h2></div>
     <div class="card">
@@ -3937,7 +3938,7 @@ case 'survey:result': showSurveyResult(); break;
 const SC_DISCLAIMER = '이 결과는 응답을 바탕으로 한 참고용 자가 체크이며, 의학적 진단이 아닙니다. 정확한 진단과 치료는 산부인과(소아는 소아청소년과) 전문의 상담이 필요합니다.';
 const SC_COND = {
 bv: {
-name: '세균성 질증', em: '🫧', urg: 'soon',
+name: '세균성질증', em: '🫧', urg: 'soon',
 line: '묽은 회색빛 분비물과 생선 비린내가 함께 나타나는 경우가 많아요. 가려움은 심하지 않은 편이에요.',
 tips: [
 '질 안쪽 세정이나 향 제품은 피하고, 외음부만 미온수로 씻어 주세요.',
@@ -3948,7 +3949,7 @@ tips: [
 doc: '질 안의 세균 균형이 무너진 상태예요. 산부인과에서 원인균을 확인해 처방받는 것이 안전하고, 임의로 항생제를 사 먹으면 재발이 잦아질 수 있어요.'
 },
 cand: {
-name: '칸디다 질염', em: '🧁', urg: 'soon',
+name: '칸디다질염', em: '🧁', urg: 'soon',
 line: '두부·치즈처럼 된 흰색 분비물과 심한 가려움·붓기가 특징이에요. 냄새는 거의 없는 편이에요.',
 tips: [
 '질 안쪽 세정은 하지 말고 외음부만 미온수로 씻어 주세요.',
@@ -3959,7 +3960,7 @@ tips: [
 doc: '칸디다(곰팡이) 균 증식으로 생기는 질염이에요. 산부인과 진료 후 약을 쓰면 대부분 호전되지만, 1년에 4번 이상 반복되면 재발 원인 검사가 필요해요.'
 },
 dry: {
-name: '질 건조증', em: '💧', urg: 'watch',
+name: '질건조증', em: '💧', urg: 'watch',
 line: '분비물이 줄고 건조해서 따갑거나 관계할 때 아픈 증상이 많아요. 완경 전후나 출산·수유 후에 흔해요.',
 tips: [
 '향·세정 성분이 없는 질 보습제를 주 2~3회 사용해 보세요.',
@@ -3970,7 +3971,7 @@ tips: [
 doc: '점막 건조는 호르몬 변화와 관련이 많아요. 증상이 계속되면 산부인과에서 국소 호르몬 치료 등 나에게 맞는 방법을 상담해 보세요.'
 },
 lax: {
-name: '질 이완증', em: '🎈', urg: 'watch',
+name: '질이완증', em: '🎈', urg: 'watch',
 line: '질이 헐거워진 느낌, 관계 시 감각 저하, 바람이 차는 느낌은 골반저근 이완과 관련될 수 있어요. 출산 경험이 있으면 흔해요.',
 tips: [
 '케겔 운동을 하루 3세트, 10회씩 꾸준히 해 보세요. (항문을 오므리는 느낌으로 5초 유지)',
@@ -4014,7 +4015,7 @@ tips: [
 doc: '양만 늘고 냄새·가려움이 없다면 생리 주기에 따른 변화일 수 있어요. 다만 갑자기 양이 크게 늘거나 색·냄새가 변하면 산부인과 검사를 권해요.'
 },
 ped: {
-name: '소아 질염', em: '👧', urg: 'soon',
+name: '소아질염', em: '👧', urg: 'soon',
 line: '아이의 외음부가 빨갛고 부어오르거나, 속옷에 노란·초록 얼룩이 생기고 가려워하는 경우예요. 소변 볼 때 아파하기도 해요.',
 tips: [
 '화장실 후에는 앞에서 뒤로 닦도록 알려 주세요.',
