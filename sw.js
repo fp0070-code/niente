@@ -1,5 +1,5 @@
 /* 니엔뜨 서비스 워커 — 오프라인에서도 앱이 열리도록 캐시합니다 */
-const CACHE = 'niente-v3.1.5';
+const CACHE = 'niente-v3.1.6';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-180.png', './icon-mark-192.png'];
 
 self.addEventListener('install', (e) => {
