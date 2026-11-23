@@ -930,7 +930,7 @@ function homePeriod(today) {
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '10가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '13가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="clean:done" data-d="${today}">
         <span class="em">💧</span><b>니엔뜨 케어 체크</b>
@@ -1018,7 +1018,7 @@ function homeMenopause(today) {
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '10가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '13가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="improve:open" data-d="${today}">
         <span class="em">💧</span><b>개선도 체크</b>
@@ -2925,7 +2925,7 @@ box.innerHTML = `
         <div class="row-ic pist">🌿</div>
         <div class="row-main">
           <div class="row-t">${S.surveys.length ? '최근 설문 ' + fmtKoY(String(S.surveys[S.surveys.length - 1].at).slice(0, 10)) : '나의 Y존 케어 서비스 설문지'}</div>
-          <div class="row-s">10가지 질환 자가 유추 · 약 1분 · 무료</div>
+          <div class="row-s">13가지 질환 자가 유추 · 약 1분 · 무료</div>
         </div>
         <button class="btn sm pist" data-act="survey:start">${S.surveys.length ? '다시 하기' : '시작'}</button>
       </div>
@@ -4036,6 +4036,39 @@ tips: [
 ],
 doc: '골반염은 방치하면 난관 손상, 불임, 만성 골반통, 자궁외임신 위험이 높아져요. 진료가 늦어지지 않도록 빠른 산부인과 진료를 권해요.'
 },
+pcos: {
+name: '다낭성난소증후군', em: '⚖️', urg: 'soon',
+line: '생리가 35일 이상 자주 늦거나 건너뛰고, 여드름·털 증가·체중 증가가 함께 나타날 수 있어요.',
+tips: [
+'3개월 이상 생리가 없다면 진료를 미루지 마세요.',
+'체중 조절과 규칙적인 운동은 배란 회복에 도움이 돼요.',
+'혈당·인슐린 저항을 확인하는 검사를 함께 받아 보세요.',
+'생리 주기를 앱에 기록해 진료 때 보여 주세요.'
+],
+doc: '배란 장애로 생리가 불규칙해지는 상태예요. 산부인과에서 호르몬 검사와 초음파로 확인하고, 필요하면 배란 유도·대사 관리 치료를 받아요. 진단은 반드시 전문의 상담으로 결정해요.'
+},
+endo: {
+name: '자궁내막증·자궁내막종', em: '🌹', urg: 'soon',
+line: '진통제가 잘 안 들을 만큼 점점 심해지는 생리통, 관계·배변 시 깊은 통증이 특징이에요.',
+tips: [
+'생리통의 강도와 진통제 복용량을 기록해 두세요.',
+'통증이 심할 때는 온찜질과 휴식이 도움이 돼요.',
+'진료 전에는 증상 시작 시기와 양상을 정리해 가세요.',
+'임의로 진통제를 계속 늘리기보다 진료를 받아 보세요.'
+],
+doc: '자궁내막증과 자궁내막종(초콜릿 낭종)은 증상이 비슷해 초음파로 구별해요. 산부인과에서 초음파·필요 시 MRI 검사 후 치료 방향을 정해요.'
+},
+adeno: {
+name: '자궁선근증', em: '🩸', urg: 'soon',
+line: '생리량이 매우 많고 덩어리가 크며, 아랫배가 묵직하고 생리통이 심한 경우예요. 어지럼·빈혈이 동반되기도 해요.',
+tips: [
+'생리량(패드 교체 횟수)과 덩어리 크기를 기록해 두세요.',
+'어지럼·창백·숨참이 있으면 빈혈 검사를 받아 보세요.',
+'철분이 많은 음식(살코기·콩·녹색 채소)을 챙기세요.',
+'생리 중 과로와 무리한 운동은 피하세요.'
+],
+doc: '자궁근층에 자궁내막 조직이 자리 잡은 상태로, 초음파로 확인해요. 빈혈 검사와 함께 산부인과에서 약물·시술 등 치료 방향을 상담하세요.'
+},
 other: {
 name: '기타 부인과 질환', em: '🩺', urg: 'fast',
 line: '부정출혈·완경 후 출혈·덩어리·체중 감소처럼 원인 확인이 필요한 신호가 보여요. 자가 판단보다 검사가 필요해요.',
@@ -4105,6 +4138,7 @@ scO('기침·웃음에 소변이 새요', { inc: 5 }),
 scO('질이 헐거운 느낌·바람이 차요', { lax: 5 }),
 scO('아랫배·골반이 아파요', { pid: 4, cyst: 1 }),
 scO('생리 사이·관계 후 출혈', { other: 3, pid: 1 }),
+scO('여드름·털이 늘고 체중이 늘었어요', { pcos: 4 }),
 scO('특별한 증상이 없어요', {}, '특별한 증상 없음')
 ]
 });
@@ -4177,6 +4211,29 @@ scO('관계할 때 깊은 통증이 있어요', { pid: 3, dry: 1, lax: 1 }),
 scO('허리까지 아파요', { pid: 2, cyst: 1 })
 ]
 });
+if (!child) {
+q.push({
+id: 'cycle', screen: 'cycle', gt: '생리 패턴', gd: '최근 3개월의 생리 주기와 생리통·생리량을 알려 주세요.', t: '생리 주기', d: '', type: 'one',
+opts: [
+scO('25~35일로 규칙적이에요', {}),
+scO('가끔 불규칙해요', { pcos: 1 }),
+scO('35일 이상 자주 늦거나 생리를 건너뛰어요', { pcos: 5 }),
+scO('폐경이 지나 생리가 없어요', { dry: 1 }),
+scO('잘 모르겠어요', {})
+]
+});
+q.push({
+id: 'period', screen: 'cycle', t: '생리통·생리량', d: '', type: 'one',
+opts: [
+scO('생리통이 거의 없어요', {}),
+scO('진통제로 조절되는 편이에요', { endo: 1 }),
+scO('진통제가 잘 안 들을 만큼 점점 심해져요', { endo: 5 }),
+scO('생리량이 매우 많고 덩어리가 커요(어지럼·빈혈)', { adeno: 6 }),
+scO('생리통도 심하고 양도 많아요', { adeno: 3, endo: 3 }),
+scO('생리할 때 배변이나 관계 시 깊은 통증이 있어요', { endo: 4, pid: 1 })
+]
+});
+}
 if (child) {
 q.push({
 id: 'childhx', t: '아이의 위생·생활 습관', d: '해당하는 것을 모두 골라 주세요.', type: 'multi',
@@ -4199,6 +4256,9 @@ scO('완경 전후예요', { dry: 3 }),
 scO('자궁·골반 수술을 받았어요', { other: 1, lax: 1 }),
 scO('최근 항생제를 먹었어요', { cand: 3 }),
 scO('1년에 3번 이상 질염이 반복돼요', { cand: 2, bv: 2 }),
+scO('자궁근종·자궁선근증 진단을 받았어요', { adeno: 4 }),
+scO('자궁내막증·난소 낭종 진단을 받았어요', { endo: 4 }),
+scO('다낭성난소증후군 진단을 받았어요', { pcos: 5 }),
 scO('생리대·팬티라이너를 오래 착용해요', { bv: 1, cand: 1 }),
 scO('특별한 이력 없어요', {})
 ]
@@ -4220,20 +4280,30 @@ scO('완경 후 출혈', { other: 6 }),
 scO('38도 이상 발열', { pid: 4 }),
 scO('심한 통증으로 일상생활이 어려워요', { pid: 3, other: 2 }),
 scO('체중 감소·아랫배 덩어리', { other: 6 }),
-scO('소변에 피가 섞여요', { cyst: 3, other: 2 })
+scO('소변에 피가 섞여요', { cyst: 3, other: 2 }),
+scO('3개월 이상 생리가 없어요', { pcos: 3 }),
+scO('생리량이 많아 어지럽고 빈혈이 있어요', { adeno: 3 })
 ]
 });
 return q;
 }
 function scSteps(V) {
-return scQuestions(V).concat([
-{ id: 'contact', t: '결과 확인', d: '휴대폰 번호를 남기면 결과를 저장하고 케어 안내에 활용해요.', type: 'form' },
-{ id: 'result', t: '자가 체크 결과', d: '', type: 'result' }
-]);
+const out = [];
+scQuestions(V).forEach(q => {
+const prev = out[out.length - 1];
+if (q.screen && prev && prev.screen === q.screen) { prev.qs.push(q); return; }
+out.push({
+id: q.id, screen: q.screen || null, t: q.gt || q.t, d: q.gd || q.d || '',
+type: q.screen ? 'group' : q.type, opts: q.opts, max: q.max, qs: [q]
+});
+});
+out.push({ id: 'contact', t: '결과 확인', d: '휴대폰 번호를 남기면 결과를 저장하고 케어 안내에 활용해요.', type: 'form', qs: [] });
+out.push({ id: 'result', t: '자가 체크 결과', d: '', type: 'result', qs: [] });
+return out;
 }
 function scAnalyze(V) {
 const qs = scQuestions(V);
-const sc = { bv: 0, cand: 0, dry: 0, lax: 0, cyst: 0, inc: 0, leuk: 0, ped: 0, pid: 0, other: 0 };
+const sc = { bv: 0, cand: 0, dry: 0, lax: 0, cyst: 0, inc: 0, leuk: 0, ped: 0, pid: 0, pcos: 0, endo: 0, adeno: 0, other: 0 };
 const ev = {};
 const labels = [];
 const child = V.subject === 'child';
@@ -4259,7 +4329,7 @@ Object.keys(o.w || {}).forEach(c => add(c, o.w[c], o.ev || v));
 });
 const warns = V.warning || [];
 let fastFlag = false;
-if (child) { sc.pid = 0; sc.lax = 0; sc.dry = 0; }
+if (child) { sc.pid = 0; sc.lax = 0; sc.dry = 0; sc.pcos = 0; sc.endo = 0; sc.adeno = 0; }
 if (has(warns, '완경 후 출혈')) { add('other', 5, '완경 후 출혈'); fastFlag = true; }
 if (has(warns, '체중 감소·아랫배 덩어리') || has(warns, '체중 감소·배에서 덩어리가 만져져요')) { add('other', 5, '덩어리·체중 감소'); fastFlag = true; }
 if (has(warns, '38도 이상 발열')) {
@@ -4314,7 +4384,7 @@ el.id = 'scLanding';
 el.className = 'sc-landing';
 document.body.appendChild(el);
 }
-const conds = ['bv', 'cand', 'dry', 'lax', 'cyst', 'inc', 'leuk', 'ped', 'pid', 'other'];
+const conds = ['bv', 'cand', 'dry', 'lax', 'cyst', 'inc', 'leuk', 'ped', 'pid', 'pcos', 'endo', 'adeno', 'other'];
 el.innerHTML = `
     <div class="sc-wrap">
       <div class="sc-top">
@@ -4325,11 +4395,11 @@ el.innerHTML = `
         <div class="sc-hero-em">🌿</div>
         <div class="sc-kicker">1분이면 충분해요</div>
         <h1>Y존 자가 건강체크</h1>
-        <p>몇 가지 증상만 골라 주세요.<br>10가지 여성 질환 중 <b>가능성이 높은 질환</b>과<br>지금 해볼 수 있는 관리를 알려드려요.</p>
+        <p>몇 가지 증상만 골라 주세요.<br>13가지 여성 질환 중 <b>가능성이 높은 질환</b>과<br>지금 해볼 수 있는 관리를 알려드려요.</p>
       </div>
       <div class="sc-stats">
-        <div><b>10</b><span>질환 구분</span></div>
-        <div><b>8</b><span>질문</span></div>
+        <div><b>13</b><span>질환 구분</span></div>
+        <div><b>10</b><span>질문</span></div>
         <div><b>1분</b><span>소요 시간</span></div>
       </div>
       <div class="sc-condtitle">이런 질환을 구분해 드려요</div>
@@ -4400,8 +4470,8 @@ const steps = scSteps(SC.answers);
 if (!steps[SC.step]) SC.step = 0;
 const st = steps[SC.step];
 const bar = Math.round(((SC.step + 1) / steps.length) * 100);
-const qCount = steps.filter(x => x.type === 'one' || x.type === 'multi').length;
-const qIndex = steps.slice(0, SC.step + 1).filter(x => x.type === 'one' || x.type === 'multi').length;
+const qCount = steps.filter(x => x.type === 'one' || x.type === 'multi' || x.type === 'group').length;
+const qIndex = steps.slice(0, SC.step + 1).filter(x => x.type === 'one' || x.type === 'multi' || x.type === 'group').length;
 const head = `
     <div class="sv-head">
       <div class="sheet-head" style="margin-bottom:6px">
@@ -4415,15 +4485,17 @@ const head = `
       <div class="progress"><i style="width:${bar}%"></i></div>
     </div>`;
 let body = '';
-if (st.type === 'one' || st.type === 'multi') {
-body = scQHtml(st);
+if (st.type === 'group') {
+body = (st.qs || []).map(scQHtml).join('');
+} else if (st.type === 'one' || st.type === 'multi') {
+body = scQHtml(st.qs && st.qs[0] ? st.qs[0] : st);
 } else if (st.type === 'form') {
 body = scFormHtml();
 } else {
 body = scResultHtml();
 }
 let foot = '';
-if (st.type === 'one' || st.type === 'multi') {
+if (st.type === 'one' || st.type === 'multi' || st.type === 'group') {
 foot = (SC.step === 0 ? `<button class="btn line" data-act="sc:close">닫기</button>` : `<button class="btn line" data-act="sc:prev">이전</button>`) +
 `<button class="btn primary" data-act="sc:next">다음</button>`;
 } else if (st.type === 'form') {
@@ -4555,10 +4627,17 @@ if (!SC) return;
 const steps = scSteps(SC.answers);
 const st = steps[SC.step];
 if (!st) return;
-if (st.type === 'one' || st.type === 'multi') {
-const a = SC.answers[st.id];
+if (st.type === 'one' || st.type === 'multi' || st.type === 'group') {
+const subs = st.qs && st.qs.length ? st.qs : [st];
+for (let i = 0; i < subs.length; i++) {
+const q = subs[i];
+const a = SC.answers[q.id];
 const filled = Array.isArray(a) ? a.length > 0 : !!a;
-if (!filled) { toast(st.type === 'multi' ? '해당하는 것을 하나 이상 골라 주세요' : '가장 가까운 항목을 골라 주세요'); return; }
+if (!filled) {
+toast(subs.length > 1 ? q.t + ' 항목을 골라 주세요' : (q.type === 'multi' ? '해당하는 것을 하나 이상 골라 주세요' : '가장 가까운 항목을 골라 주세요'));
+return;
+}
+}
 }
 if (st.type === 'form') { scSubmit(); return; }
 if (SC.step >= steps.length - 1) return;
@@ -4596,7 +4675,7 @@ const rec = {
 id: 'sc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
 at: at,
 kind: 'selfcheck',
-version: '1.0',
+version: '1.1',
 answers: A,
 result: { primary: R.primary, second: R.second, scores: R.scores, conf: R.conf, urgency: R.urgency, subject: A.subject, evidence: R.evidence },
 concerns: [c.name].concat(R.second ? [SC_COND[R.second].name] : []).concat((A.symptoms || []).filter(x => x !== '특별한 증상이 없어요').slice(0, 2)),
@@ -4650,7 +4729,7 @@ feedback: rec.feedback, concerns: rec.concerns, mode: S.mode
 }
 function scShare() {
 const url = location.origin + location.pathname;
-const text = '1분 무료 Y존 자가 건강체크 — 10가지 여성 질환을 증상으로 확인해 보세요.';
+const text = '1분 무료 Y존 자가 건강체크 — 13가지 여성 질환을 증상으로 확인해 보세요.';
 if (navigator.share) {
 navigator.share({ title: '니엔뜨 1분 Y존 자가 건강체크', text: text, url: url }).catch(() => {});
 return;
@@ -4670,7 +4749,7 @@ const nm = last ? SC_COND[last.result.primary].name : '';
 const sec = last && last.result.second ? SC_COND[last.result.second].name : '';
 const sub = last
 ? '최근 결과 · ' + nm + (sec ? ' / ' + sec : '') + ' 가능성 · ' + fmtShort(String(last.at).slice(0, 10)) + ' · 다시 하기'
-: '10가지 질환을 증상으로 유추해 드려요 · 무료';
+: '13가지 질환을 증상으로 유추해 드려요 · 무료';
 return `<button class="sc-home" data-act="selfcheck:start">
     <span class="sc-home-em">🌿</span>
     <span class="sc-home-tx"><b>1분 무료 Y존 자가 건강체크</b><span>${esc(sub)}</span></span>
@@ -5504,7 +5583,7 @@ const quick = `
     <div class="quick">
       <button data-act="survey:start">
         <span class="em">🌿</span><b>1분 Y존 자가 체크</b>
-        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '10가지 질환 자가 유추 · 무료'}</span>
+        <span>${S.surveys.length ? '최근 ' + fmtShort(S.surveys[S.surveys.length - 1].at.slice(0, 10)) + ' · 다시 하기' : '13가지 질환 자가 유추 · 무료'}</span>
       </button>
       <button data-act="improve:open" data-d="${today}">
         <span class="em">💧</span><b>개선도 체크</b>
