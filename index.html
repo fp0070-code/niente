@@ -4372,6 +4372,7 @@ V.cycle === '폐경이 지나 생리가 없어요' ||
 const warns = V.warning || [];
 let fastFlag = false;
 if (child) { sc.pid = 0; sc.lax = 0; sc.dry = 0; sc.pcos = 0; sc.endo = 0; sc.adeno = 0; }
+else sc.ped = 0;   // 소아질염은 소아 대상에서만
 if (child || !menopausal) sc.atro = 0;
 else {
 const symTxt = (V.symptoms || []).join(' ') + ' ' + String(V.itch || '');
